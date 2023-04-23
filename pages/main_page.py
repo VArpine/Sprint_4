@@ -25,8 +25,7 @@ class MainPage:
             accordion_item_locator.format(number=number)
         ]
         item = WebDriverWait(self.driver, 3).until(expected_conditions.visibility_of_element_located(accordion_item))
-        self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight)")
-        # self.driver.execute_script("arguments[0].scrollIntoView();", item)
+        self.driver.execute_script("arguments[0].scrollIntoView();", item)
         ActionChains(self.driver).move_to_element(item).click().perform()
 
     def check_if_question_item_open(self, number):
