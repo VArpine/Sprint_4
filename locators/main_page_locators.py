@@ -5,4 +5,4 @@ accordion_item_locator = './/div[@class="accordion__item"][{number}]//div[@class
 accordion_item_panel_locator = './/div[@class="accordion__item"][{number}]//div[@class="accordion__panel"]'
 
 main_header_title = [By.CLASS_NAME, 'Home_Header__iJKdX']
-main_page_order_button = [By.CLASS_NAME, 'Button_Button__ra12g Button_Middle__1CSJM']
+main_page_order_button = [By.XPATH, './/button[contains(@class, "Button_Button__ra12g Button_Middle__1CSJM")]']
