@@ -1,75 +1,69 @@
-from selenium import webdriver
+import pytest
 
-from ..conftest import order_one
-from ..pages.main_page import MainPage
-from ..pages.order_page import OrderPage
-from ..pages.base_page import BasePage
+from ..urls.urls import *
+from ..locators.base_page_locators import *
 
-
+@pytest.mark.usefixtures("firefox_driver_init", "use_base_page", "use_main_page", "use_order_page")
 class TestImportantQuestionsBlock:
-    driver = None
-
-    @classmethod
-    def setup_class(cls):
-        cls.driver = webdriver.Firefox()
-
     def test_order_one_flow_from_header_button(self, order_one):
-        self.driver.get('https://qa-scooter.praktikum-services.ru/')
+        self.driver.get(main_page_url)
 
-        base_page = BasePage(self.driver)
-        base_page.click_cookie_button()
-        base_page.click_on_header_order_button()
+        self.base_page.click_cookie_button()
+        self.base_page.click_on_element(header_order_button)
 
-        self.order_test_flow(order_one)
+        assert self.check_test_order_flow(order_one) == True
+        assert self.check_redirect_to_main_page_after_order() == True
+        assert self.check_redirect_to_yandex_page_after_order() == True
+        self.close_yandex_page()
 
     def test_order_two_flow_from_header_button(self, order_two):
-        self.driver.get('https://qa-scooter.praktikum-services.ru/')
+        self.driver.get(main_page_url)
+        self.base_page.click_cookie_button()
+        self.base_page.click_on_element(header_order_button)
 
-        base_page = BasePage(self.driver)
-        base_page.click_cookie_button()
-        base_page.click_on_header_order_button()
-
-        self.order_test_flow(order_two)
+        assert self.check_test_order_flow(order_two) == True
+        assert self.check_redirect_to_main_page_after_order() == True
+        assert self.check_redirect_to_yandex_page_after_order() == True
+        self.close_yandex_page()
 
     def test_order_one_flow_from_main_page_button(self, order_one):
-        self.driver.get('https://qa-scooter.praktikum-services.ru/')
+        self.driver.get(main_page_url)
+        self.base_page.click_cookie_button()
+        self.main_page.click_on_main_page_order_button()
 
-        base_page = BasePage(self.driver)
-        base_page.click_cookie_button()
-
-        main_page = MainPage(self.driver)
-        main_page.click_on_main_page_order_button()
-
-        self.order_test_flow(order_one)
+        assert self.check_test_order_flow(order_one) == True
+        assert self.check_redirect_to_main_page_after_order() == True
+        assert self.check_redirect_to_yandex_page_after_order() == True
+        self.close_yandex_page()
 
     def test_order_two_flow_from_main_page_button(self, order_two):
-        self.driver.get('https://qa-scooter.praktikum-services.ru/')
+        self.driver.get(main_page_url)
+        self.base_page.click_cookie_button()
+        self.main_page.click_on_main_page_order_button()
 
-        base_page = BasePage(self.driver)
-        base_page.click_cookie_button()
+        assert self.check_test_order_flow(order_two) == True
+        assert self.check_redirect_to_main_page_after_order() == True
+        assert self.check_redirect_to_yandex_page_after_order() == True
+        self.close_yandex_page()
 
-        main_page = MainPage(self.driver)
-        main_page.click_on_main_page_order_button()
+    def check_test_order_flow(self, order):
+        self.order_page.wait_for_load_order_page()
+        self.order_page.full_order_form(order)
+        self.order_page.wait_for_open_modal_window()
+        self.order_page.click_on_modal_yes_button()
 
-        self.order_test_flow(order_two)
+        return self.order_page.check_successful_order()
 
-    def order_test_flow(self, order):
-        base_page = BasePage(self.driver)
-        main_page = MainPage(self.driver)
-        order_page = OrderPage(self.driver)
+    def check_redirect_to_main_page_after_order(self):
+        self.order_page.click_on_show_order_button()
+        self.base_page.click_on_element(scooter_link)
 
-        order_page.wait_for_load_order_page()
-        order_page.full_order_form(order)
-        order_page.wait_for_open_modal_window()
-        order_page.click_on_modal_yes_button()
-        order_page.check_successful_order()
-        order_page.click_on_show_order_button()
-        base_page.click_on_header_scooter_button()
-        main_page.wait_for_load_main_page()
-        base_page.click_on_header_logo_button()
-        base_page.check_yandex_page_open()
-        base_page.close_yandex_page()
+        return self.main_page.wait_for_load_main_page()
 
-    @classmethod
-    def teardown_class(cls):
-        cls.driver.quit()
+    def check_redirect_to_yandex_page_after_order(self):
+        self.base_page.click_on_element(logo_link)
+
+        return self.base_page.check_yandex_page_open()
+
+    def close_yandex_page(self):
+        self.base_page.close_yandex_page()

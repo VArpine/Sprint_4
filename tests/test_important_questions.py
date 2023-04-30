@@ -1,24 +1,17 @@
-from selenium import webdriver
+import pytest
 from ..pages.main_page import MainPage
+from ..urls.urls import *
 
+@pytest.mark.usefixtures("firefox_driver_init", "use_main_page")
 class TestImportantQuestionsBlock:
-    driver = None
-
-    @classmethod
-    def setup_class(cls):
-        cls.driver = webdriver.Firefox()
-
     def test_questions_open(self):
-        self.driver.get('https://qa-scooter.praktikum-services.ru/')
+        self.driver.get(main_page_url)
 
-        main_page = MainPage(self.driver)
+        self.main_page = MainPage(self.driver)
 
-        for number in range(1, main_page.get_accordion_items_count()):
-            main_page.click_on_question_item(number)
-            main_page.check_if_question_item_open(number)
+        for number in range(1, self.main_page.get_accordion_items_count()):
+            self.main_page.click_on_question_item(number)
+            assert self.main_page.check_if_question_item_open(number) == True
+            assert self.main_page.check_if_question_content_is_right(number) == True
 
-        main_page.wait_for_load_main_page()
-
-    @classmethod
-    def teardown_class(cls):
-        cls.driver.quit()
+        assert self.main_page.wait_for_load_main_page() == True

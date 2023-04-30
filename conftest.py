@@ -1,4 +1,8 @@
 import pytest
+from selenium import webdriver
+from .pages.base_page import BasePage
+from .pages.main_page import MainPage
+from .pages.order_page import OrderPage
 
 
 class Order:
@@ -40,3 +44,25 @@ def order_two():
     )
 
     return order_two
+
+
+@pytest.fixture(scope="class")
+def firefox_driver_init(request):
+    firefox_driver = webdriver.Firefox()
+    request.cls.driver = firefox_driver
+
+    yield
+
+    firefox_driver.quit()
+
+@pytest.fixture(scope="class")
+def use_base_page(request):
+    request.cls.base_page = BasePage(request.cls.driver)
+
+@pytest.fixture(scope="class")
+def use_main_page(request):
+    request.cls.main_page = MainPage(request.cls.driver)
+
+@pytest.fixture(scope="class")
+def use_order_page(request):
+    request.cls.order_page = OrderPage(request.cls.driver)
