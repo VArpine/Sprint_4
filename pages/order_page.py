@@ -1,11 +1,16 @@
 from selenium.webdriver import ActionChains
+
 from ..locators.order_page_locators import *
+from ..locators.base_page_locators import *
+
+from ..pages.main_page import MainPage
 from ..pages.base_page import BasePage
 
 class OrderPage:
     def __init__(self, driver):
         self.driver = driver
         self.base_page = BasePage(self.driver)
+        self.main_page = MainPage(self.driver)
 
     def wait_for_open_modal_window(self):
         self.base_page.wait_for_element_visibility(order_modal_title)
@@ -36,3 +41,17 @@ class OrderPage:
         ActionChains(self.driver).move_to_element(self.driver.find_element(*duration_field)).click().perform()
         self.base_page.wait_for_element_visibility((By.XPATH, duration_item_field_locator.format(value=order.duration))).click()
         ActionChains(self.driver).move_to_element(self.driver.find_element(*order_button)).click().perform()
+
+    def check_test_order_flow(self, order):
+        self.wait_for_load_order_page()
+        self.full_order_form(order)
+        self.wait_for_open_modal_window()
+        self.click_on_modal_yes_button()
+
+        return self.check_successful_order()
+
+    def check_redirect_to_main_page_after_order(self):
+        self.click_on_show_order_button()
+        self.base_page.click_on_element(scooter_link)
+
+        return self.main_page.wait_for_load_main_page()

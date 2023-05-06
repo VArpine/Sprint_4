@@ -30,6 +30,11 @@ class BasePage:
         WebDriverWait(self.driver, 10).until(expected_conditions.url_contains('dzen'))
         return 'dzen' in self.driver.current_url
 
+    def check_redirect_to_yandex_page_after_order(self):
+        self.click_on_element(logo_link)
+
+        return self.check_yandex_page_open()
+
     def close_yandex_page(self):
         self.driver.switch_to.window(self.driver.window_handles[1])
         self.driver.close()
